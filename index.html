@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa interativo — Registros georreferenciados</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; color: #263238; }
+    header { padding: 14px 18px; background: #17324d; color: white; }
+    header h1 { margin: 0 0 5px; font-size: 20px; }
+    header p { margin: 0; font-size: 13px; opacity: .9; }
+    #controls { display: flex; flex-wrap: wrap; gap: 9px; padding: 12px 14px; background: #f3f6f8; align-items: center; }
+    input, select, button { padding: 9px 10px; border: 1px solid #bdc7ce; border-radius: 5px; background: white; font-size: 14px; }
+    input { min-width: 210px; flex: 1; }
+    select { min-width: 180px; }
+    button { cursor: pointer; background: #fff; }
+    #summary { padding: 7px 15px; font-size: 13px; background: #fff; border-bottom: 1px solid #e0e0e0; }
+    #map { height: calc(100vh - 154px); min-height: 430px; width: 100%; }
+    .popup-title { font-weight: 700; font-size: 15px; margin-bottom: 7px; }
+    .popup-row { margin: 4px 0; overflow-wrap: anywhere; }
+    .popup-label { font-weight: 700; }
+    .legend { background: white; padding: 9px 11px; border-radius: 5px; box-shadow: 0 1px 5px #777; line-height: 1.55; max-height: 45vh; overflow-y: auto; font-size: 12px; }
+    .legend div { white-space: nowrap; }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+    @media (max-width: 650px) {
+      #map { height: calc(100vh - 220px); }
+      header h1 { font-size: 17px; }
+      select, input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Mapa interativo — Registros georreferenciados</h1>
+  <p>Explore os pontos, filtre por município e classificação e consulte os atributos de cada registro.</p>
+</header>
+<section id="controls">
+  <input id="search" type="search" placeholder="Pesquisar por nome, endereço ou município…">
+  <select id="city"><option value="">Todos os municípios</option></select>
+  <select id="classification"><option value="">Todas as classificações</option></select>
+  <button id="reset" type="button">Limpar filtros</button>
+</section>
+<div id="summary">Carregando dados geográficos…</div>
+<div id="map" aria-label="Mapa interativo"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+const map = L.map('map').setView([-8.05, -34.9], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+const cluster = L.markerClusterGroup({ chunkedLoading: true });
+map.addLayer(cluster);
+let allFeatures = [];
+
+const labels = {
+  google_melhor: 'Google — melhor correspondência',
+  novo_google: 'Novo registro Google',
+  nominatim_melhor: 'Nominatim — melhor correspondência',
+  novo_google_possivel: 'Novo registro Google — possível',
+  divergente_inconclusivo: 'Divergente / inconclusivo',
+  confirmado_proximo: 'Confirmado — próximo',
+  confirmado: 'Confirmado',
+  match_ruim: 'Correspondência fraca',
+  proximo_nome_diferente: 'Próximo — nome diferente'
+};
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '—').replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+
+function popup(feature) {
+  const p = feature.properties || {};
+  const rows = [
+    ['Município', [p.city, p.state].filter(Boolean).join(' / ') || '—'],
+    ['Classificação', labels[p.classification] || p.classification],
+    ['Fonte', p.source],
+    ['Nome identificado (Google)', p.google_name],
+    ['Endereço', p.google_address],
+    ['Similaridade do nome', p.google_name_similarity],
+    ['Município compatível', p.google_city_match],
+    ['Avaliação Google', p.google_rating],
+    ['Número de avaliações', p.google_reviews],
+    ['Precisão Nominatim', p.nominatim_precision],
+    ['Distância (m)', p.distance_m]
+  ];
+  return `<div class="popup-title">${esc(p.name)}</div>` +
+    rows.map(([k,v]) => `<div class="popup-row"><span class="popup-label">${esc(k)}:</span> ${esc(v)}</div>`).join('');
+}
+
+function fillFilters(features) {
+  const cities = [...new Set(features.map(f => f.properties?.city).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  const classes = [...new Set(features.map(f => f.properties?.classification).filter(Boolean))].sort();
+  cities.forEach(v => $('city').add(new Option(v, v)));
+  classes.forEach(v => $('classification').add(new Option(labels[v] || v, v)));
+}
+
+function render() {
+  const q = $('search').value.trim().toLocaleLowerCase('pt-BR');
+  const city = $('city').value;
+  const classification = $('classification').value;
+  const filtered = allFeatures.filter(f => {
+    const p = f.properties || {};
+    const haystack = [p.name, p.google_name, p.google_address, p.city, p.state].join(' ').toLocaleLowerCase('pt-BR');
+    return (!q || haystack.includes(q)) &&
+      (!city || p.city === city) &&
+      (!classification || p.classification === classification);
+  });
+
+  cluster.clearLayers();
+  const markers = [];
+  filtered.forEach(f => {
+    if (!f.geometry || f.geometry.type !== 'Point') return;
+    const [lon, lat] = f.geometry.coordinates;
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+    const color = /^#[0-9a-f]{6}$/i.test(f.properties?.color || '') ? f.properties.color : '#3388ff';
+    const marker = L.circleMarker([lat, lon], {
+      radius: 7, color: '#ffffff', weight: 1.2, fillColor: color, fillOpacity: .9
+    }).bindPopup(popup(f), {maxWidth: 360});
+    markers.push(marker);
+  });
+  cluster.addLayers(markers);
+  $('summary').textContent = `${filtered.length.toLocaleString('pt-BR')} de ${allFeatures.length.toLocaleString('pt-BR')} registros exibidos`;
+  if (filtered.length && markers.length) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.08), {maxZoom: 13});
+  }
+}
+
+$('search').addEventListener('input', render);
+$('city').addEventListener('change', render);
+$('classification').addEventListener('change', render);
+$('reset').addEventListener('click', () => {
+  $('search').value = '';
+  $('city').value = '';
+  $('classification').value = '';
+  render();
+});
+
+const legend = L.control({position: 'bottomright'});
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<strong>Classificações</strong>' +
+    Object.entries(labels).map(([key,label]) => {
+      const feature = allFeatures.find(f => f.properties?.classification === key);
+      const color = feature?.properties?.color || '#3388ff';
+      return `<div><span class="swatch" style="background:${color}"></span>${esc(label)}</div>`;
+    }).join('');
+  L.DomEvent.disableClickPropagation(div);
+  return div;
+};
+
+fetch('./validation_test_map.geojson')
+  .then(response => {
+    if (!response.ok) throw new Error('Não foi possível carregar o GeoJSON (' + response.status + ').');
+    return response.json();
+  })
+  .then(data => {
+    allFeatures = data.features || [];
+    fillFilters(allFeatures);
+    legend.addTo(map);
+    render();
+  })
+  .catch(error => {
+    $('summary').textContent = 'Erro ao carregar os dados. Verifique se validation_test_map.geojson está na mesma pasta de index.html. ' + error.message;
+    console.error(error);
+  });
+</script>
+</body>
+</html>
