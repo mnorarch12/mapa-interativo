@@ -3,28 +3,359 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>WebGIS - NUIs</title>
+<title>WebGIS | Vulnerabilidade Socioambiental</title>
 
 <link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+:root {
+  --navy: #18334b;
+  --blue: #28658a;
+  --bg: #f2f5f8;
+  --panel: #ffffff;
+  --text: #263746;
+  --muted: #718096;
+  --border: #e2e8ee;
+  --accent: #3b829b;
 }
 
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* CABEÇALHO */
+
 header {
-  background: #17324d;
+  height: 72px;
+  background: var(--navy);
   color: white;
-  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  background: #ffffff20;
+  border: 1px solid #ffffff50;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+
+.brand h1 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 650;
+}
+
+.brand p {
+  font-size: 11px;
+  color: #c6d5e1;
+  margin: 4px 0 0;
+}
+
+.header-info {
+  font-size: 12px;
+  color: #d5e2eb;
+}
+
+/* LAYOUT */
+
+.container {
+  max-width: 1800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.intro {
+  margin-bottom: 18px;
+}
+
+.intro h2 {
+  margin: 0 0 5px;
+  font-size: 21px;
+  font-weight: 650;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* INDICADORES */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px;
+  margin-bottom: 18px;
+}
+
+.kpi {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 16px;
+}
+
+.kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--muted);
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 9px;
+  color: var(--navy);
+}
+
+.kpi-sub {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+/* ÁREA PRINCIPAL */
+
+.workspace {
+  display: grid;
+  grid-template-columns: 285px minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.sidebar {
+  padding: 18px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--navy);
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 650;
+  color: #586b7b;
+  margin-bottom: 7px;
+}
+
+select, input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d8e0e7;
+  border-radius: 6px;
+  font-size: 12px;
+  background: white;
+  color: var(--text);
+  outline-color: var(--accent);
+}
+
+.btn {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 10px;
+  background: var(--navy);
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.btn:hover { background: var(--blue); }
+
+.help {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* MAPA */
+
+.map-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.map-toolbar {
+  padding: 14px 17px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.map-toolbar strong {
+  font-size: 13px;
+  color: var(--navy);
+}
+
+#map-status {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 #map {
-  height: 85vh;
+  height: 590px;
   width: 100%;
+  background: #e9eef2;
+}
+
+.map-footer {
+  padding: 12px 17px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* LEGENDA */
+
+.legend {
+  background: white;
+  padding: 11px;
+  border-radius: 7px;
+  box-shadow: 0 1px 7px #0002;
+  font-size: 11px;
+  width: 180px;
+}
+
+.legend-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.gradient {
+  height: 11px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #f1f5f9,
+    #a7c8d4,
+    #4b94a8,
+    #17476b
+  );
+}
+
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  color: #526474;
+}
+
+/* TABELA */
+
+.details {
+  margin-top: 17px;
+  padding: 18px;
+}
+
+.details h3 {
+  font-size: 14px;
+  margin: 0 0 12px;
+  color: var(--navy);
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.detail-item {
+  padding: 10px;
+  background: #f5f7f9;
+  border-radius: 6px;
+  min-width: 0;
+}
+
+.detail-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.detail-value {
+  font-size: 13px;
+  font-weight: 650;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* RESPONSIVIDADE */
+
+@media(max-width: 950px) {
+  .workspace { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .details-grid { grid-template-columns: repeat(2, 1fr); }
+  #map { height: 520px; }
+}
+
+@media(max-width: 550px) {
+  header { padding: 12px; }
+  .header-info { display: none; }
+  .container { padding: 12px; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .kpi-value { font-size: 19px; }
+  .details-grid { grid-template-columns: 1fr 1fr; }
+  #map { height: 450px; }
 }
 </style>
 </head>
@@ -32,69 +363,738 @@ header {
 <body>
 
 <header>
-<h2>Mapeamento dos Núcleos Urbanos Informais</h2>
-<p>Visualização geográfica dos NUIs</p>
+  <div class="brand">
+    <div class="brand-mark">⌖</div>
+    <div>
+      <h1>WebGIS | Vulnerabilidade Socioambiental</h1>
+      <p>Indicadores territoriais dos Núcleos Urbanos Informais</p>
+    </div>
+  </div>
+  <div class="header-info">
+    SISTEMA DE ANÁLISE TERRITORIAL
+  </div>
 </header>
 
-<div id="map"></div>
+<main class="container">
+
+  <section class="intro">
+    <h2>Exploração dos indicadores socioambientais</h2>
+    <p>
+      Visualização espacial, consulta e análise dos indicadores
+      associados aos Núcleos Urbanos Informais.
+    </p>
+  </section>
+
+  <section class="kpis">
+
+    <div class="kpi">
+      <div class="kpi-label">NUIs identificados</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-sub">Polígonos disponíveis</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Área territorial</div>
+      <div class="kpi-value" id="kpi-area">—</div>
+      <div class="kpi-sub">Hectares dos NUIs exibidos</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Média do indicador</div>
+      <div class="kpi-value" id="kpi-media">—</div>
+      <div class="kpi-sub">Feições filtradas</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Feições com dados</div>
+      <div class="kpi-value" id="kpi-validos">—</div>
+      <div class="kpi-sub">Registros válidos no indicador</div>
+    </div>
+
+  </section>
+
+  <section class="workspace">
+
+    <aside class="panel sidebar">
+
+      <div class="section-title">
+        FILTROS E INDICADORES
+      </div>
+
+      <div class="field">
+        <label>Pesquisar NUI</label>
+        <input id="search" type="search"
+          placeholder="Código ou nome do núcleo">
+      </div>
+
+      <div class="field">
+        <label>Dimensão temática</label>
+        <select id="dimension">
+          <option value="infra">Infraestrutura urbana</option>
+          <option value="demo">Características demográficas</option>
+          <option value="edu">Educação</option>
+          <option value="socio">Condições socioeconômicas</option>
+          <option value="dens">Densidade demográfica</option>
+          <option value="amb">Condições ambientais</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Indicador</label>
+        <select id="indicator"></select>
+      </div>
+
+      <div class="field">
+        <label>Tipo de variável</label>
+        <select id="metric">
+          <option value="media">Média</option>
+          <option value="exposicao">Exposição territorial (%)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Ordenação do indicador</label>
+        <select id="order">
+          <option value="natural">Escala crescente</option>
+          <option value="reverse">Escala decrescente</option>
+        </select>
+      </div>
+
+      <button class="btn" id="reset">Restaurar filtros</button>
+
+      <div class="help">
+        <strong>Orientações</strong><br>
+        Selecione uma dimensão e um indicador para atualizar
+        a representação cartográfica. Clique em um polígono
+        para consultar suas informações.
+      </div>
+
+    </aside>
+
+    <section class="panel map-panel">
+
+      <div class="map-toolbar">
+        <strong id="map-title">Distribuição espacial dos indicadores</strong>
+        <span id="map-status">Carregando dados...</span>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="map-footer">
+        <span>Fonte: base de dados geográficos do projeto.</span>
+        <span>Sistema de visualização: Leaflet.</span>
+      </div>
+
+    </section>
+
+  </section>
+
+  <section class="panel details">
+    <h3>Identificação e características do NUI selecionado</h3>
+    <div id="details-grid" class="details-grid">
+      <p class="empty">Selecione um polígono no mapa para consultar seus atributos.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  WebGIS | Análise territorial e vulnerabilidade socioambiental
+</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-// Inicialização do mapa
-const map = L.map('map');
+// ===================================================
+// 1. CONFIGURAÇÃO DOS INDICADORES
+// ===================================================
 
-// Mapa-base
+const dimensions = {
+
+  infra: {
+    label: "Infraestrutura urbana",
+    indicators: {
+      arborizacao: {
+        label: "Domicílios sem arborização",
+        media: "media_dom_sem_arb",
+        exposicao: "soma_pct_exp_arborizacao"
+      },
+      agua: {
+        label: "Domicílios sem abastecimento de água",
+        media: "media_dom_sem_agua",
+        exposicao: "soma_pct_exp_agua"
+      },
+      calcada: {
+        label: "Domicílios sem calçada",
+        media: "media_dom_sem_calcada",
+        exposicao: "soma_pct_exp_calcada"
+      },
+      lixo: {
+        label: "Domicílios sem coleta de lixo",
+        media: "media_dom_sem_lixo",
+        exposicao: "soma_pct_exp_lixo"
+      },
+      esgoto: {
+        label: "Domicílios sem esgotamento sanitário",
+        media: "media_dom_sem_esgoto",
+        exposicao: "soma_pct_exp_esgoto"
+      },
+      bueiro: {
+        label: "Presença de bueiro",
+        media: "media_perc_bueiro_sim",
+        exposicao: "soma_pct_exp_bueiro"
+      },
+      iluminacao: {
+        label: "Domicílios sem iluminação pública",
+        media: "media_dom_sem_ilu_publica",
+        exposicao: "soma_pct_exp_iluminacao"
+      }
+    }
+  },
+
+  demo: {
+    label: "Características demográficas",
+    indicators: {
+      jovens: {
+        label: "População de 0 a 14 anos",
+        media: "media_0a14",
+        exposicao: "soma_pct_exp_0a14"
+      },
+      mulheres: {
+        label: "Mulheres",
+        media: "media_mulheres",
+        exposicao: "soma_pct_exp_bueiro"
+      },
+      negros: {
+        label: "Pessoas negras",
+        media: "media_pessoas_negras",
+        exposicao: "soma_pct_exp_pessoas negras"
+      },
+      idosos: {
+        label: "Pessoas com 60 anos ou mais",
+        media: "media_pessoas_mais60",
+        exposicao: "soma_pct_exp_pessoas_mais60"
+      }
+    }
+  },
+
+  edu: {
+    label: "Educação",
+    indicators: {
+      analfa: {
+        label: "Analfabetismo de 20 a 59 anos",
+        media: "media_analfa20a59",
+        exposicao: null
+      },
+      analfa60: {
+        label: "Analfabetismo de 60 anos ou mais",
+        media: "media_analfamais60",
+        exposicao: null
+      }
+    }
+  },
+
+  socio: {
+    label: "Condições socioeconômicas",
+    indicators: {
+      renda: {
+        label: "Renda das pessoas responsáveis",
+        media: "media_renda_pes_resp",
+        exposicao: "soma_pct_exp_renda_pessoas_responsáveis"
+      }
+    }
+  },
+
+  dens: {
+    label: "Densidade demográfica",
+    indicators: {
+      densidade: {
+        label: "Densidade demográfica",
+        media: "media_densidade_demografica",
+        exposicao: "soma_pct_exp_densidade_demografica"
+      }
+    }
+  },
+
+  amb: {
+    label: "Condições ambientais",
+    indicators: {
+      lst: {
+        label: "Temperatura de superfície (LST)",
+        media: "lst_amean",
+        exposicao: null
+      },
+      ndvi: {
+        label: "Índice de vegetação (NDVI)",
+        media: "ndvi_amean",
+        exposicao: null
+      }
+    }
+  }
+};
+
+
+// ===================================================
+// 2. CONFIGURAÇÃO GERAL
+// ===================================================
+
+let allFeatures = [];
+let visibleLayer;
+let selectedFeature = null;
+
+const map = L.map("map", {
+  zoomControl: true
+}).setView([-8.05, -34.9], 11);
+
 L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
-    attribution: '&copy; OpenStreetMap'
+    maxZoom: 20,
+    attribution: "&copy; OpenStreetMap"
   }
 ).addTo(map);
 
-// Carregamento do GeoJSON
-fetch('./teste_pnui.geojson')
-.then(response => response.json())
-.then(data => {
 
-  const camada = L.geoJSON(data, {
+// ===================================================
+// 3. FUNÇÕES AUXILIARES
+// ===================================================
+
+function number(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const result = Number(value);
+
+  return Number.isFinite(result) ? result : null;
+}
+
+function format(value, decimals = 2) {
+  if (value === null || !Number.isFinite(value)) return "—";
+
+  return value.toLocaleString("pt-BR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function escapeHTML(value) {
+  return String(value ?? "—").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function getConfig() {
+  return dimensions[document.getElementById("dimension").value]
+    .indicators[document.getElementById("indicator").value];
+}
+
+function getField() {
+  const config = getConfig();
+
+  return document.getElementById("metric").value === "media"
+    ? config.media
+    : config.exposicao;
+}
+
+function getValue(feature) {
+  const field = getField();
+
+  if (!field) return null;
+
+  return number(feature.properties?.[field]);
+}
+
+function getValues(features) {
+  return features
+    .map(getValue)
+    .filter(v => v !== null);
+}
+
+
+// ===================================================
+// 4. SELEÇÃO DOS INDICADORES
+// ===================================================
+
+function updateIndicators() {
+
+  const dimension = document.getElementById("dimension").value;
+  const select = document.getElementById("indicator");
+
+  select.innerHTML = "";
+
+  Object.entries(dimensions[dimension].indicators)
+    .forEach(([key, item]) => {
+
+      const option = document.createElement("option");
+
+      option.value = key;
+      option.textContent = item.label;
+
+      select.appendChild(option);
+    });
+
+  updateMetricOptions();
+}
+
+function updateMetricOptions() {
+
+  const config = getConfig();
+  const metric = document.getElementById("metric");
+
+  const exposureOption = metric.querySelector(
+    'option[value="exposicao"]'
+  );
+
+  exposureOption.disabled = !config.exposicao;
+
+  if (!config.exposicao) {
+    metric.value = "media";
+  }
+
+  renderMap();
+}
+
+
+// ===================================================
+// 5. ESCALA CARTOGRÁFICA
+// ===================================================
+
+function getColor(value, min, max) {
+
+  if (value === null) return "#b8c1ca";
+
+  if (max === min) return "#28658a";
+
+  let t = (value - min) / (max - min);
+
+  if (document.getElementById("order").value === "reverse") {
+    t = 1 - t;
+  }
+
+  const colors = [
+    [241, 245, 249],
+    [167, 200, 212],
+    [75, 148, 168],
+    [23, 71, 107]
+  ];
+
+  const index = Math.min(
+    2,
+    Math.floor(t * 3)
+  );
+
+  const local = Math.min(
+    1,
+    Math.max(0, t * 3 - index)
+  );
+
+  const a = colors[index];
+  const b = colors[index + 1];
+
+  const rgb = a.map((v, i) =>
+    Math.round(v + (b[i] - v) * local)
+  );
+
+  return `rgb(${rgb.join(",")})`;
+}
+
+
+// ===================================================
+// 6. FILTRAGEM DOS DADOS
+// ===================================================
+
+function getFilteredFeatures() {
+
+  const query = document.getElementById("search")
+    .value.trim().toLocaleLowerCase("pt-BR");
+
+  return allFeatures.filter(feature => {
+
+    const p = feature.properties || {};
+
+    const searchable = [
+      p.V0,
+      p.V1,
+      p.V2a,
+      p.V2b,
+      p.V3a
+    ].join(" ").toLocaleLowerCase("pt-BR");
+
+    return !query || searchable.includes(query);
+  });
+}
+
+
+// ===================================================
+// 7. RENDERIZAÇÃO DO MAPA
+// ===================================================
+
+function renderMap() {
+
+  if (!allFeatures.length) return;
+
+  if (visibleLayer) {
+    map.removeLayer(visibleLayer);
+  }
+
+  const features = getFilteredFeatures();
+  const values = getValues(features);
+
+  const min = values.length ? Math.min(...values) : 0;
+  const max = values.length ? Math.max(...values) : 0;
+
+  visibleLayer = L.geoJSON(features, {
 
     style: function(feature) {
+
+      const value = getValue(feature);
+
       return {
-        color: '#174a70',
-        weight: 1.5,
-        fillColor: '#3498db',
-        fillOpacity: 0.45
+        color: "#ffffff",
+        weight: 1.2,
+        fillColor: getColor(value, min, max),
+        fillOpacity: 0.82
       };
     },
 
     onEachFeature: function(feature, layer) {
 
-      const p = feature.properties;
+      layer.on("click", function() {
+        selectedFeature = feature;
+        showDetails(feature);
+      });
 
-      layer.bindPopup(`
-        <h3>${p.V0 || 'NUI'}</h3>
-        <b>Município:</b> ${p.V1 || '—'}<br>
-        <b>Localidade:</b> ${p.V3a || '—'}<br>
-        <b>Grupo:</b> ${p.V2b || '—'}<br>
-        <b>Fonte:</b> ${p.V4b || '—'}<br>
-        <b>Ano:</b> ${p.V4c || '—'}<br>
-        <b>Área (ha):</b> ${p.area_ha || '—'}
-      `);
+      layer.on("mouseover", function() {
+        layer.setStyle({
+          weight: 2.5,
+          color: "#17324d",
+          fillOpacity: 0.95
+        });
+      });
+
+      layer.on("mouseout", function() {
+        visibleLayer.resetStyle(layer);
+      });
 
     }
 
   }).addTo(map);
 
-  // Ajustar o enquadramento aos polígonos
-  if (camada.getLayers().length > 0) {
-    map.fitBounds(camada.getBounds());
+  const config = getConfig();
+  const metric = document.getElementById("metric").value;
+
+  document.getElementById("map-title").textContent =
+    config.label + " — " +
+    (metric === "media" ? "Média" : "Exposição territorial");
+
+  document.getElementById("map-status").textContent =
+    features.length.toLocaleString("pt-BR") +
+    " NUIs exibidos";
+
+  updateKPIs(features, values);
+
+  updateLegend(min, max);
+
+  if (features.length) {
+    const bounds = visibleLayer.getBounds();
+
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, { padding: [25, 25] });
+    }
   }
 
+  if (selectedFeature && !features.includes(selectedFeature)) {
+    selectedFeature = null;
+    document.getElementById("details-grid").innerHTML =
+      '<p class="empty">Selecione um polígono no mapa.</p>';
+  }
+}
+
+
+// ===================================================
+// 8. INDICADORES ESTATÍSTICOS
+// ===================================================
+
+function updateKPIs(features, values) {
+
+  const area = features.reduce((total, feature) => {
+    return total + (number(feature.properties?.area_ha) || 0);
+  }, 0);
+
+  const mean = values.length
+    ? values.reduce((a, b) => a + b, 0) / values.length
+    : null;
+
+  document.getElementById("kpi-total").textContent =
+    features.length.toLocaleString("pt-BR");
+
+  document.getElementById("kpi-area").textContent =
+    format(area, 2);
+
+  document.getElementById("kpi-media").textContent =
+    format(mean, 2);
+
+  document.getElementById("kpi-validos").textContent =
+    values.length.toLocaleString("pt-BR");
+}
+
+
+// ===================================================
+// 9. LEGENDA
+// ===================================================
+
+let legendControl;
+
+function updateLegend(min, max) {
+
+  if (legendControl) map.removeControl(legendControl);
+
+  legendControl = L.control({ position: "bottomright" });
+
+  legendControl.onAdd = function() {
+
+    const div = L.DomUtil.create("div", "legend");
+
+    div.innerHTML = `
+      <div class="legend-title">Distribuição do indicador</div>
+      <div class="gradient"></div>
+      <div class="legend-labels">
+        <span>${format(min, 2)}</span>
+        <span>${format(max, 2)}</span>
+      </div>
+      <div style="margin-top:8px;color:#718096">
+        Cinza: sem informação
+      </div>
+    `;
+
+    return div;
+  };
+
+  legendControl.addTo(map);
+}
+
+
+// ===================================================
+// 10. CONSULTA DOS ATRIBUTOS
+// ===================================================
+
+function showDetails(feature) {
+
+  const p = feature.properties || {};
+
+  const config = getConfig();
+  const field = getField();
+  const value = field ? p[field] : null;
+
+  const fields = [
+    ["Código do NUI", p.V0],
+    ["Município", p.V1],
+    ["Identificação territorial", p.V2a],
+    ["Grupo", p.V2b],
+    ["Localidade", p.V3a],
+    ["Área (m²)", format(number(p.area_m2), 2)],
+    ["Área (ha)", format(number(p.area_ha), 2)],
+    ["Indicador selecionado", config.label],
+    ["Campo de origem", field],
+    ["Valor do indicador", format(number(value), 3)]
+  ];
+
+  const container = document.getElementById("details-grid");
+
+  container.innerHTML = fields.map(([label, value]) => `
+    <div class="detail-item">
+      <div class="detail-label">${escapeHTML(label)}</div>
+      <div class="detail-value">${escapeHTML(value)}</div>
+    </div>
+  `).join("");
+
+}
+
+
+// ===================================================
+// 11. EVENTOS DOS CONTROLES
+// ===================================================
+
+document.getElementById("dimension")
+  .addEventListener("change", updateIndicators);
+
+document.getElementById("indicator")
+  .addEventListener("change", updateMetricOptions);
+
+document.getElementById("metric")
+  .addEventListener("change", renderMap);
+
+document.getElementById("order")
+  .addEventListener("change", renderMap);
+
+document.getElementById("search")
+  .addEventListener("input", renderMap);
+
+document.getElementById("reset")
+  .addEventListener("click", function() {
+
+    document.getElementById("search").value = "";
+    document.getElementById("dimension").value = "infra";
+
+    updateIndicators();
+
+  });
+
+
+// ===================================================
+// 12. CARREGAMENTO DO GEOJSON
+// ===================================================
+
+fetch("./teste_pnui.geojson")
+
+.then(response => {
+
+  if (!response.ok) {
+    throw new Error("Erro ao carregar o arquivo GeoJSON.");
+  }
+
+  return response.json();
+
 })
+
+.then(data => {
+
+  if (data.type !== "FeatureCollection") {
+    throw new Error("O arquivo não possui estrutura FeatureCollection.");
+  }
+
+  allFeatures = data.features || [];
+
+  if (!allFeatures.length) {
+    throw new Error("O GeoJSON não possui feições.");
+  }
+
+  updateIndicators();
+
+  document.getElementById("map-status").textContent =
+    allFeatures.length.toLocaleString("pt-BR") +
+    " registros carregados";
+
+})
+
 .catch(error => {
-  console.error('Erro ao carregar GeoJSON:', error);
+
+  console.error(error);
+
+  document.getElementById("map-status").textContent =
+    "Erro no carregamento dos dados";
+
+  alert(
+    error.message +
+    " Verifique o nome e o posicionamento do arquivo GeoJSON."
+  );
+
 });
 
 </script>
