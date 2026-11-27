@@ -1,1103 +1,212 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>WebGIS | Vulnerabilidade Socioambiental</title>
-
-<link rel="stylesheet"
- href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102c3a">
+<title>Observatório Socioambiental | Aracoiaba</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy: #18334b;
-  --blue: #28658a;
-  --bg: #f2f5f8;
-  --panel: #ffffff;
-  --text: #263746;
-  --muted: #718096;
-  --border: #e2e8ee;
-  --accent: #3b829b;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* CABEÇALHO */
-
-header {
-  height: 72px;
-  background: var(--navy);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 25px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-}
-
-.brand-mark {
-  width: 38px;
-  height: 38px;
-  background: #ffffff20;
-  border: 1px solid #ffffff50;
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-}
-
-.brand h1 {
-  font-size: 17px;
-  margin: 0;
-  font-weight: 650;
-}
-
-.brand p {
-  font-size: 11px;
-  color: #c6d5e1;
-  margin: 4px 0 0;
-}
-
-.header-info {
-  font-size: 12px;
-  color: #d5e2eb;
-}
-
-/* LAYOUT */
-
-.container {
-  max-width: 1800px;
-  margin: auto;
-  padding: 20px;
-}
-
-.intro {
-  margin-bottom: 18px;
-}
-
-.intro h2 {
-  margin: 0 0 5px;
-  font-size: 21px;
-  font-weight: 650;
-}
-
-.intro p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-/* INDICADORES */
-
-.kpis {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 13px;
-  margin-bottom: 18px;
-}
-
-.kpi {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 16px;
-}
-
-.kpi-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--muted);
-}
-
-.kpi-value {
-  font-size: 24px;
-  font-weight: 700;
-  margin-top: 9px;
-  color: var(--navy);
-}
-
-.kpi-sub {
-  font-size: 11px;
-  margin-top: 4px;
-  color: var(--muted);
-}
-
-/* ÁREA PRINCIPAL */
-
-.workspace {
-  display: grid;
-  grid-template-columns: 285px minmax(0, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-
-.panel {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  overflow: hidden;
-}
-
-.sidebar {
-  padding: 18px;
-}
-
-.section-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  color: var(--navy);
-}
-
-.field {
-  margin-bottom: 16px;
-}
-
-.field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 650;
-  color: #586b7b;
-  margin-bottom: 7px;
-}
-
-select, input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d8e0e7;
-  border-radius: 6px;
-  font-size: 12px;
-  background: white;
-  color: var(--text);
-  outline-color: var(--accent);
-}
-
-.btn {
-  width: 100%;
-  border: 0;
-  border-radius: 6px;
-  padding: 10px;
-  background: var(--navy);
-  color: white;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.btn:hover { background: var(--blue); }
-
-.help {
-  margin-top: 20px;
-  border-top: 1px solid var(--border);
-  padding-top: 15px;
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-/* MAPA */
-
-.map-panel {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.map-toolbar {
-  padding: 14px 17px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.map-toolbar strong {
-  font-size: 13px;
-  color: var(--navy);
-}
-
-#map-status {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-#map {
-  height: 590px;
-  width: 100%;
-  background: #e9eef2;
-}
-
-.map-footer {
-  padding: 12px 17px;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-/* LEGENDA */
-
-.legend {
-  background: white;
-  padding: 11px;
-  border-radius: 7px;
-  box-shadow: 0 1px 7px #0002;
-  font-size: 11px;
-  width: 180px;
-}
-
-.legend-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.gradient {
-  height: 11px;
-  border-radius: 3px;
-  background: linear-gradient(
-    to right,
-    #f1f5f9,
-    #a7c8d4,
-    #4b94a8,
-    #17476b
-  );
-}
-
-.legend-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 5px;
-  color: #526474;
-}
-
-/* TABELA */
-
-.details {
-  margin-top: 17px;
-  padding: 18px;
-}
-
-.details h3 {
-  font-size: 14px;
-  margin: 0 0 12px;
-  color: var(--navy);
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.detail-item {
-  padding: 10px;
-  background: #f5f7f9;
-  border-radius: 6px;
-  min-width: 0;
-}
-
-.detail-label {
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.detail-value {
-  font-size: 13px;
-  font-weight: 650;
-  margin-top: 5px;
-  overflow-wrap: anywhere;
-}
-
-.empty {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-/* RESPONSIVIDADE */
-
-@media(max-width: 950px) {
-  .workspace { grid-template-columns: 1fr; }
-  .kpis { grid-template-columns: repeat(2, 1fr); }
-  .details-grid { grid-template-columns: repeat(2, 1fr); }
-  #map { height: 520px; }
-}
-
-@media(max-width: 550px) {
-  header { padding: 12px; }
-  .header-info { display: none; }
-  .container { padding: 12px; }
-  .kpis { grid-template-columns: repeat(2, 1fr); }
-  .kpi-value { font-size: 19px; }
-  .details-grid { grid-template-columns: 1fr 1fr; }
-  #map { height: 450px; }
-}
+:root{--navy:#102c3a;--teal:#16877e;--ink:#193640;--muted:#71828a;--line:#e5ebed;--bg:#f3f7f7;--white:#fff;--shadow:0 8px 26px #1835400d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"DM Sans",sans-serif}button,input,select{font:inherit}
+.top{background:linear-gradient(110deg,#102c3a,#14535a 72%,#16766d);color:white;padding:16px 26px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:42px;height:42px;border:1px solid #ffffff40;border-radius:13px;display:grid;place-items:center;color:#79ddc5;font-size:23px}.brand b{font:800 15px Manrope;letter-spacing:.07em}.brand small{display:block;color:#c6dcde;margin-top:3px;font-size:11px}.top button{border:0;border-radius:9px;background:#e1f4ee;color:#14554f;padding:10px 13px;font-weight:700;font-size:11px}
+main{max-width:1650px;margin:auto;padding:22px 24px 30px}.intro{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:16px}.eyebrow{font-size:10px;color:var(--teal);font-weight:800;letter-spacing:.14em;text-transform:uppercase}.intro h1{font:800 clamp(24px,3vw,32px) Manrope;margin:5px 0}.intro p{margin:0;color:var(--muted);font-size:12px}.status{font-size:11px;color:var(--muted)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#d49a40;margin-right:7px}.dot.ok{background:#1aa27d}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}.kpi,.panel{background:white;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}.kpi{padding:14px 16px}.kpi label{color:var(--muted);font-size:11px}.kpi strong{display:block;font:800 25px Manrope;margin-top:6px}.kpi small{font-size:10px;color:#91a0a5}
+.layout{display:grid;grid-template-columns:270px minmax(0,1fr) 290px;gap:13px;align-items:stretch}.panelhead{padding:15px 16px 11px;border-bottom:1px solid var(--line)}.panelhead b{font:800 13px Manrope}.panelhead p{margin:4px 0 0;color:var(--muted);font-size:10px;line-height:1.5}.filters{padding:14px 15px}.field{margin-bottom:13px}.field label{display:block;font-size:10px;font-weight:800;color:#64777e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}.field select,.field input{width:100%;border:1px solid #dce5e7;background:#fbfdfd;border-radius:8px;padding:9px;font-size:11px;color:var(--ink);min-height:37px}.mode{display:grid;grid-template-columns:1fr 1fr;background:#eff4f3;padding:4px;border-radius:9px}.mode button{border:0;background:transparent;padding:8px;border-radius:7px;font-size:11px;color:#657980;font-weight:700}.mode button.active{background:white;color:#0f655d;box-shadow:0 2px 7px #173d3d12}.actions{display:flex;gap:7px}.btn{border:1px solid #dce5e7;background:white;border-radius:8px;padding:9px 10px;color:#536970;font-size:10px;font-weight:700}.btn.primary{background:var(--teal);border-color:var(--teal);color:white}
+.mapPanel{overflow:hidden;display:flex;flex-direction:column}.maphead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}.maphead b{font:800 12px Manrope}.maphead small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.maptools{display:flex;gap:5px;flex-wrap:wrap}.maptools select,.maptools button{border:1px solid #dce5e7;border-radius:7px;background:white;padding:7px;font-size:10px;color:#50656d}#map{height:545px;min-height:420px;background:#e7eeee}.mapfoot{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;color:var(--muted);font-size:10px}.ramp{display:inline-flex;width:95px;height:8px;border-radius:9px;overflow:hidden;vertical-align:middle;margin:0 5px}.ramp i{flex:1}
+.profile{padding:14px 15px}.empty{padding:22px 10px;text-align:center;border-radius:11px;background:#f6f9f9;color:var(--muted);font-size:11px;line-height:1.6}.empty span{font-size:25px;display:block;margin-bottom:6px}.pname{font:800 16px Manrope;overflow-wrap:anywhere}.sub{font-size:10px;color:var(--muted);margin:4px 0 8px}.stat{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #edf1f2;padding:9px 0;font-size:10px}.stat span{color:var(--muted)}.stat strong{text-align:right}.chartbox{height:190px;position:relative;margin:10px 12px 14px}.charttitle{font:800 11px Manrope;margin:14px 14px 0}
+.notice{display:none;background:#fff7e7;border:1px solid #efd8aa;color:#76591f;padding:10px 12px;border-radius:9px;margin:10px 0;font-size:11px;line-height:1.5}.notice.show{display:block}
+.section{margin-top:15px}.sectitle{display:flex;justify-content:space-between;gap:10px;margin:0 0 9px}.sectitle b{font:800 13px Manrope}.sectitle span{font-size:10px;color:var(--muted)}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:13px}.analysis{padding:14px 15px}.analysis b{font:800 12px Manrope}.analysis p{font-size:10px;color:var(--muted);margin:4px 0 8px}.bigchart{height:215px;position:relative}
+.tablewrap{overflow:auto;max-height:300px}table{border-collapse:collapse;width:100%;font-size:10px}th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #edf1f2;white-space:nowrap}th{position:sticky;top:0;background:#fafcfc;color:var(--muted);font-size:9px;text-transform:uppercase}tbody tr{cursor:pointer}tbody tr:hover{background:#eff8f5}.rank{color:var(--teal);font-weight:800}.foot{display:flex;justify-content:space-between;gap:10px;color:#91a0a5;font-size:10px;padding:17px 2px 0}
+@media(max-width:1180px){.layout{grid-template-columns:250px minmax(0,1fr)}.right{grid-column:1/-1}.rightbody{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
+@media(max-width:740px){.top{padding:13px 14px}.top button{font-size:10px;padding:9px}.top .brand b{font-size:12px}main{padding:16px 11px 24px}.intro{display:block}.status{margin-top:12px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:11px}.kpi strong{font-size:21px}.layout{grid-template-columns:1fr}.right{grid-column:auto}.rightbody{display:block}#map{height:420px;min-height:360px}.maphead{align-items:flex-start;flex-direction:column}.twocol{grid-template-columns:1fr}.foot{display:block;line-height:1.7}}
 </style>
 </head>
-
 <body>
-
-<header>
-  <div class="brand">
-    <div class="brand-mark">⌖</div>
-    <div>
-      <h1>WebGIS | Vulnerabilidade Socioambiental</h1>
-      <p>Indicadores territoriais dos Núcleos Urbanos Informais</p>
-    </div>
-  </div>
-  <div class="header-info">
-    SISTEMA DE ANÁLISE TERRITORIAL
-  </div>
+<header class="top">
+ <div class="brand"><div class="mark">⌖</div><div><b>OBSERVATÓRIO SOCIOAMBIENTAL</b><small>Dados, território e desigualdades socioambientais</small></div></div>
+ <button id="exportBtn">↓ Exportar dados filtrados</button>
 </header>
-
-<main class="container">
-
-  <section class="intro">
-    <h2>Exploração dos indicadores socioambientais</h2>
-    <p>
-      Visualização espacial, consulta e análise dos indicadores
-      associados aos Núcleos Urbanos Informais.
-    </p>
+<main>
+ <section class="intro"><div><div class="eyebrow">Exploração territorial</div><h1>Aracoiaba <span style="color:#16877e">/ PE</span></h1><p>Visualização integrada de indicadores de vulnerabilidade socioambiental.</p></div><div class="status"><span class="dot" id="dot"></span><span id="status">Aguardando arquivo GeoJSON</span></div></section>
+ <div class="notice" id="notice"></div>
+ <section class="kpis">
+  <div class="kpi"><label>Unidades territoriais</label><strong id="kFeatures">—</strong><small>Feições na seleção atual</small></div>
+  <div class="kpi"><label>Área analisada</label><strong id="kArea">—</strong><small>Soma de area_ha, se disponível</small></div>
+  <div class="kpi"><label>Indicadores mapeáveis</label><strong id="kIndicators">—</strong><small>Campos reconhecidos na base</small></div>
+  <div class="kpi"><label>Dimensões temáticas</label><strong>6</strong><small>Grupos de análise</small></div>
+ </section>
+ <section class="layout">
+  <aside class="panel">
+   <div class="panelhead"><b>Explorar indicadores</b><p>Escolha uma dimensão, um indicador e a forma de representação.</p></div>
+   <div class="filters">
+    <div class="field"><label for="search">Buscar unidade territorial</label><input id="search" type="search" placeholder="Identificador: V0, V1..."></div>
+    <div class="field"><label for="dimension">Dimensão temática</label><select id="dimension"></select></div>
+    <div class="field"><label for="indicator">Indicador</label><select id="indicator"></select></div>
+    <div class="field"><label>Representação</label><div class="mode"><button id="mean" class="active">Média</button><button id="exposure">Exposição (%)</button></div></div>
+    <div class="field"><label for="order">Ordenação do ranking</label><select id="order"><option value="desc">Maior para menor</option><option value="asc">Menor para maior</option></select></div>
+    <div class="field"><label for="compare">Comparar com outro indicador</label><select id="compare"><option value="">Não comparar</option></select></div>
+    <div class="actions"><button class="btn primary" id="reset">Restaurar filtros</button><button class="btn" id="fit">Enquadrar mapa</button></div>
+   </div>
+  </aside>
+  <section class="panel mapPanel">
+   <div class="maphead"><div><b>Distribuição espacial do indicador</b><small id="mapSubtitle">Carregando camada territorial…</small></div><div class="maptools"><select id="basemap"><option value="osm">Ruas · OSM</option><option value="light">Mapa claro</option><option value="satellite">Satélite</option></select><button id="opacity">Transparência</button><button id="fullscreen">Tela cheia</button></div></div>
+   <div id="map"></div>
+   <div class="mapfoot"><span>Menor <span class="ramp"><i style="background:#f4e6b5"></i><i style="background:#e9c77e"></i><i style="background:#d89a60"></i><i style="background:#bb654f"></i><i style="background:#853f49"></i></span> Maior</span><span id="legend">Escala relativa aos valores visíveis</span></div>
   </section>
-
-  <section class="kpis">
-
-    <div class="kpi">
-      <div class="kpi-label">NUIs identificados</div>
-      <div class="kpi-value" id="kpi-total">—</div>
-      <div class="kpi-sub">Polígonos disponíveis</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Área territorial</div>
-      <div class="kpi-value" id="kpi-area">—</div>
-      <div class="kpi-sub">Hectares dos NUIs exibidos</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Média do indicador</div>
-      <div class="kpi-value" id="kpi-media">—</div>
-      <div class="kpi-sub">Feições filtradas</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Feições com dados</div>
-      <div class="kpi-value" id="kpi-validos">—</div>
-      <div class="kpi-sub">Registros válidos no indicador</div>
-    </div>
-
-  </section>
-
-  <section class="workspace">
-
-    <aside class="panel sidebar">
-
-      <div class="section-title">
-        FILTROS E INDICADORES
-      </div>
-
-      <div class="field">
-        <label>Pesquisar NUI</label>
-        <input id="search" type="search"
-          placeholder="Código ou nome do núcleo">
-      </div>
-
-      <div class="field">
-        <label>Dimensão temática</label>
-        <select id="dimension">
-          <option value="infra">Infraestrutura urbana</option>
-          <option value="demo">Características demográficas</option>
-          <option value="edu">Educação</option>
-          <option value="socio">Condições socioeconômicas</option>
-          <option value="dens">Densidade demográfica</option>
-          <option value="amb">Condições ambientais</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Indicador</label>
-        <select id="indicator"></select>
-      </div>
-
-      <div class="field">
-        <label>Tipo de variável</label>
-        <select id="metric">
-          <option value="media">Média</option>
-          <option value="exposicao">Exposição territorial (%)</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Ordenação do indicador</label>
-        <select id="order">
-          <option value="natural">Escala crescente</option>
-          <option value="reverse">Escala decrescente</option>
-        </select>
-      </div>
-
-      <button class="btn" id="reset">Restaurar filtros</button>
-
-      <div class="help">
-        <strong>Orientações</strong><br>
-        Selecione uma dimensão e um indicador para atualizar
-        a representação cartográfica. Clique em um polígono
-        para consultar suas informações.
-      </div>
-
-    </aside>
-
-    <section class="panel map-panel">
-
-      <div class="map-toolbar">
-        <strong id="map-title">Distribuição espacial dos indicadores</strong>
-        <span id="map-status">Carregando dados...</span>
-      </div>
-
-      <div id="map"></div>
-
-      <div class="map-footer">
-        <span>Fonte: base de dados geográficos do projeto.</span>
-        <span>Sistema de visualização: Leaflet.</span>
-      </div>
-
-    </section>
-
-  </section>
-
-  <section class="panel details">
-    <h3>Identificação e características do NUI selecionado</h3>
-    <div id="details-grid" class="details-grid">
-      <p class="empty">Selecione um polígono no mapa para consultar seus atributos.</p>
-    </div>
-  </section>
-
+  <aside class="panel right">
+   <div class="panelhead"><b>Perfil da unidade</b><p>Clique em um polígono ou em uma linha do ranking.</p></div>
+   <div class="rightbody"><div class="profile" id="profile"><div class="empty"><span>⌖</span><b>Nenhuma unidade selecionada</b><br>O perfil territorial aparecerá aqui.</div></div><div><div class="charttitle">Indicadores da unidade</div><div class="chartbox"><canvas id="profileChart"></canvas></div></div></div>
+  </aside>
+ </section>
+ <section class="section">
+  <div class="sectitle"><b>Comparação e classificação territorial</b><span id="rankCaption">Ranking do indicador selecionado</span></div>
+  <div class="twocol">
+   <article class="panel analysis"><b>Ranking das unidades territoriais</b><p>As unidades são ordenadas conforme o indicador selecionado.</p><div class="bigchart"><canvas id="rankChart"></canvas></div></article>
+   <article class="panel analysis"><b>Comparação entre indicadores</b><p id="compareText">Selecione outro indicador no painel lateral para habilitar a comparação.</p><div class="bigchart"><canvas id="compareChart"></canvas></div></article>
+  </div>
+ </section>
+ <section class="section panel" style="overflow:hidden">
+  <div class="panelhead"><b>Tabela de unidades territoriais</b><p>Selecione uma linha para localizar a unidade e consultar seu perfil.</p></div>
+  <div class="tablewrap"><table><thead><tr><th>Ordem</th><th>Identificação</th><th>Indicador</th><th>Valor</th><th>Área (ha)</th></tr></thead><tbody id="table"><tr><td colspan="5">Aguardando dados…</td></tr></tbody></table></div>
+ </section>
+ <footer class="foot"><span>Observatório Socioambiental · Interface de exploração geográfica</span><span>Fonte: arquivo GeoJSON do projeto. Os resultados dependem dos atributos disponíveis.</span></footer>
 </main>
-
-<footer>
-  WebGIS | Análise territorial e vulnerabilidade socioambiental
-</footer>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-
-// ===================================================
-// 1. CONFIGURAÇÃO DOS INDICADORES
-// ===================================================
-
-const dimensions = {
-
-  infra: {
-    label: "Infraestrutura urbana",
-    indicators: {
-      arborizacao: {
-        label: "Domicílios sem arborização",
-        media: "media_dom_sem_arb",
-        exposicao: "soma_pct_exp_arborizacao"
-      },
-      agua: {
-        label: "Domicílios sem abastecimento de água",
-        media: "media_dom_sem_agua",
-        exposicao: "soma_pct_exp_agua"
-      },
-      calcada: {
-        label: "Domicílios sem calçada",
-        media: "media_dom_sem_calcada",
-        exposicao: "soma_pct_exp_calcada"
-      },
-      lixo: {
-        label: "Domicílios sem coleta de lixo",
-        media: "media_dom_sem_lixo",
-        exposicao: "soma_pct_exp_lixo"
-      },
-      esgoto: {
-        label: "Domicílios sem esgotamento sanitário",
-        media: "media_dom_sem_esgoto",
-        exposicao: "soma_pct_exp_esgoto"
-      },
-      bueiro: {
-        label: "Presença de bueiro",
-        media: "media_perc_bueiro_sim",
-        exposicao: "soma_pct_exp_bueiro"
-      },
-      iluminacao: {
-        label: "Domicílios sem iluminação pública",
-        media: "media_dom_sem_ilu_publica",
-        exposicao: "soma_pct_exp_iluminacao"
-      }
-    }
-  },
-
-  demo: {
-    label: "Características demográficas",
-    indicators: {
-      jovens: {
-        label: "População de 0 a 14 anos",
-        media: "media_0a14",
-        exposicao: "soma_pct_exp_0a14"
-      },
-      mulheres: {
-        label: "Mulheres",
-        media: "media_mulheres",
-        exposicao: "soma_pct_exp_bueiro"
-      },
-      negros: {
-        label: "Pessoas negras",
-        media: "media_pessoas_negras",
-        exposicao: "soma_pct_exp_pessoas negras"
-      },
-      idosos: {
-        label: "Pessoas com 60 anos ou mais",
-        media: "media_pessoas_mais60",
-        exposicao: "soma_pct_exp_pessoas_mais60"
-      }
-    }
-  },
-
-  edu: {
-    label: "Educação",
-    indicators: {
-      analfa: {
-        label: "Analfabetismo de 20 a 59 anos",
-        media: "media_analfa20a59",
-        exposicao: null
-      },
-      analfa60: {
-        label: "Analfabetismo de 60 anos ou mais",
-        media: "media_analfamais60",
-        exposicao: null
-      }
-    }
-  },
-
-  socio: {
-    label: "Condições socioeconômicas",
-    indicators: {
-      renda: {
-        label: "Renda das pessoas responsáveis",
-        media: "media_renda_pes_resp",
-        exposicao: "soma_pct_exp_renda_pessoas_responsáveis"
-      }
-    }
-  },
-
-  dens: {
-    label: "Densidade demográfica",
-    indicators: {
-      densidade: {
-        label: "Densidade demográfica",
-        media: "media_densidade_demografica",
-        exposicao: "soma_pct_exp_densidade_demografica"
-      }
-    }
-  },
-
-  amb: {
-    label: "Condições ambientais",
-    indicators: {
-      lst: {
-        label: "Temperatura de superfície (LST)",
-        media: "lst_amean",
-        exposicao: null
-      },
-      ndvi: {
-        label: "Índice de vegetação (NDVI)",
-        media: "ndvi_amean",
-        exposicao: null
-      }
-    }
-  }
-};
-
-
-// ===================================================
-// 2. CONFIGURAÇÃO GERAL
-// ===================================================
-
-let allFeatures = [];
-let visibleLayer;
-let selectedFeature = null;
-
-const map = L.map("map", {
-  zoomControl: true
-}).setView([-8.05, -34.9], 11);
-
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom: 20,
-    attribution: "&copy; OpenStreetMap"
-  }
-).addTo(map);
-
-
-// ===================================================
-// 3. FUNÇÕES AUXILIARES
-// ===================================================
-
-function number(value) {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-
-  const result = Number(value);
-
-  return Number.isFinite(result) ? result : null;
+"use strict";
+const GEOJSON_URL="./aracoiabateste.geojson";
+const DIMS=[
+{id:"infra",label:"Infraestrutura urbana",items:[
+{id:"arborizacao",label:"Domicílios sem arborização",mean:"media_dom_sem_arb",exp:"soma_pct_exp_arborizacao"},
+{id:"agua",label:"Domicílios sem água",mean:"media_dom_sem_agua",exp:"soma_pct_exp_agua"},
+{id:"calcada",label:"Domicílios sem calçada",mean:"media_dom_sem_calcada",exp:"soma_pct_exp_calcada"},
+{id:"lixo",label:"Domicílios sem coleta de lixo",mean:"media_dom_sem_lixo",exp:"soma_pct_exp_lixo"},
+{id:"esgoto",label:"Domicílios sem esgotamento sanitário",mean:"media_dom_sem_esgoto",exp:"soma_pct_exp_esgoto"},
+{id:"bueiro",label:"Percentual de bueiro (sim)",mean:"media_perc_bueiro_sim",exp:"soma_pct_exp_perc_bueiro_sim"},
+{id:"iluminacao",label:"Domicílios sem iluminação pública",mean:"media_dom_sem_ilu_publica",exp:"soma_pct_exp_iluminacao"}]},
+{id:"demo",label:"Demográfica",items:[
+{id:"0a14",label:"População de 0 a 14 anos",mean:"media_0a14",exp:"soma_pct_exp_0a14"},
+{id:"mulheres",label:"Mulheres",mean:"media_mulheres",exp:null},
+{id:"negra",label:"População negra",mean:"media_pessoas_negras",exp:"soma_pct_exp_pessoas negras"},
+{id:"mais60",label:"Pessoas com 60 anos ou mais",mean:"media_pessoas_mais60",exp:"soma_pct_exp_pessoas_mais60"}]},
+{id:"educ",label:"Educacional",items:[
+{id:"analf2059",label:"Analfabetismo (20 a 59 anos)",mean:"media_analfa20a59",exp:null},
+{id:"analf60",label:"Analfabetismo (60 anos ou mais)",mean:"media_analfamais60",exp:null}]},
+{id:"socio",label:"Socioeconômica",items:[
+{id:"renda",label:"Renda das pessoas responsáveis",mean:"media_renda_pes_resp",exp:"soma_pct_exp_renda_pessoas_responsáveis"}]},
+{id:"dens",label:"Densidade demográfica",items:[
+{id:"densidade",label:"Densidade demográfica",mean:"media_densidade_demografica",exp:"soma_pct_exp_densidade_demografica"}]},
+{id:"amb",label:"Ambiental",items:[
+{id:"lst",label:"Temperatura da superfície (LST)",mean:"lst_amean",exp:null},
+{id:"ndvi",label:"Índice de vegetação (NDVI)",mean:"ndvi_amean",exp:null}]}];
+const ALL=DIMS.flatMap(d=>d.items), COLORS=["#f4e6b5","#e9c77e","#d89a60","#bb654f","#853f49"];
+// Campo preservado, mas não associado automaticamente a média alguma: soma_pct_exp_bueiro.
+const ADDITIONAL_FIELDS=["soma_pct_exp_bueiro"];
+const S={data:null,features:[],filtered:[],selected:null,mode:"mean",opacity:.78,layer:null,charts:{}};
+const $=id=>document.getElementById(id);
+const number=v=>{if(typeof v==="number")return Number.isFinite(v)?v:null;if(typeof v!=="string"||!v.trim())return null;let n=Number(v.trim().replace(/\s/g,"").replace(/%$/,"").replace(",", "."));return Number.isFinite(n)?n:null};
+const val=(f,k)=>k?number((f.properties||{})[k]):null;
+const fmt=(v,n=2)=>v===null||v===undefined||!Number.isFinite(v)?"—":new Intl.NumberFormat("pt-BR",{maximumFractionDigits:n}).format(v);
+const ind=()=>ALL.find(x=>x.id===$("indicator").value)||ALL[0];
+const field=()=>S.mode==="mean"?ind().mean:ind().exp;
+const name=f=>{let p=f.properties||{};for(let k of ["V0","V1","V2a","V2b","V3a","nome","NOME","id","ID"])if(p[k]!==undefined&&p[k]!==null&&String(p[k]).trim())return String(p[k]);return "Unidade sem identificador"};
+const area=f=>val(f,"area_ha");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function notice(t){$("notice").textContent=t;$("notice").classList.add("show")}
+function clearNotice(){$("notice").classList.remove("show")}
+function setupSelects(){
+ $("dimension").innerHTML=DIMS.map(d=>`<option value="${d.id}">${d.label}</option>`).join("");
+ $("compare").innerHTML='<option value="">Não comparar</option>'+ALL.map(i=>`<option value="${i.id}">${i.label}</option>`).join("");
+ fillIndicators();
 }
-
-function format(value, decimals = 2) {
-  if (value === null || !Number.isFinite(value)) return "—";
-
-  return value.toLocaleString("pt-BR", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  });
+function fillIndicators(){let d=DIMS.find(x=>x.id===$("dimension").value)||DIMS[0];$("indicator").innerHTML=d.items.map(i=>`<option value="${i.id}">${i.label}</option>`).join("");modeAvailability()}
+function modeAvailability(){let ok=!!ind().exp;$("exposure").disabled=!ok;$("exposure").style.opacity=ok?"1":".4";if(!ok&&S.mode==="exposure")setMode("mean")}
+function setMode(m){S.mode=m;$("mean").classList.toggle("active",m==="mean");$("exposure").classList.toggle("active",m==="exposure");refresh()}
+function visibleValues(k){return S.filtered.map(f=>val(f,k)).filter(v=>v!==null)}
+function range(a){if(!a.length)return[0,1];let lo=Math.min(...a),hi=Math.max(...a);if(lo===hi){lo-=.5;hi+=.5}return[lo,hi]}
+function color(v,lo,hi){if(v===null)return"#bac5c8";return COLORS[Math.min(4,Math.floor(Math.max(0,Math.min(.9999,(v-lo)/(hi-lo||1)))*5))]}
+const map=L.map("map",{preferCanvas:true}).setView([-8.4,-35],8);
+const base={osm:L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}),light:L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{maxZoom:20,attribution:"© OpenStreetMap © CARTO"}),satellite:L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Tiles © Esri"})};
+let activeBase=base.osm.addTo(map);
+$("basemap").onchange=e=>{map.removeLayer(activeBase);activeBase=base[e.target.value].addTo(map)};
+$("fit").onclick=fit;
+$("opacity").onclick=()=>{S.opacity=S.opacity>.7?.52:.85;$("opacity").textContent=`Transparência · ${Math.round(S.opacity*100)}%`;renderMap()};
+$("fullscreen").onclick=()=>{let el=$("map").parentElement;if(!document.fullscreenElement&&el.requestFullscreen)el.requestFullscreen();else if(document.exitFullscreen)document.exitFullscreen();setTimeout(()=>map.invalidateSize(),250)};
+function fit(){if(S.layer&&S.layer.getBounds().isValid())map.fitBounds(S.layer.getBounds(),{padding:[25,25],maxZoom:15})}
+function renderMap(){
+ if(S.layer)map.removeLayer(S.layer);
+ if(!S.filtered.length){S.layer=null;return}
+ let vs=visibleValues(field()),[lo,hi]=range(vs);
+ S.layer=L.geoJSON(S.filtered,{style:f=>({color:S.selected===f?"#102c3a":"#fff",weight:S.selected===f?3:1.1,fillColor:color(val(f,field()),lo,hi),fillOpacity:S.opacity}),
+ pointToLayer:(f,ll)=>L.circleMarker(ll,{radius:7,color:"#fff",weight:1.5,fillColor:color(val(f,field()),lo,hi),fillOpacity:S.opacity}),
+ onEachFeature:(f,l)=>{let v=val(f,field());l.bindPopup(`<b>${esc(name(f))}</b><br>${esc(ind().label)}<br>${S.mode==="mean"?"Média":"Exposição"}: <b>${fmt(v)}${S.mode==="exposure"?"%":""}</b>`);l.on("click",()=>select(f));l.on("mouseover",()=>l.setStyle({weight:2.7,color:"#17313d"}));l.on("mouseout",()=>S.layer&&S.layer.resetStyle(l))}}).addTo(map);
+ $("mapSubtitle").textContent=`${ind().label} · ${S.filtered.length} unidade(s)`;
+ $("legend").textContent=`${ind().label} · ${S.mode==="mean"?"média":"exposição (%)"}`;
 }
-
-function escapeHTML(value) {
-  return String(value ?? "—").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+function updateKpis(){
+ $("kFeatures").textContent=fmt(S.filtered.length,0);
+ let a=S.filtered.map(area).filter(v=>v!==null);$("kArea").textContent=a.length?fmt(a.reduce((x,y)=>x+y,0))+" ha":"—";
+ $("kIndicators").textContent=fmt(ALL.filter(i=>S.filtered.some(f=>val(f,i.mean)!==null||val(f,i.exp)!==null)).length,0);
 }
-
-function getConfig() {
-  return dimensions[document.getElementById("dimension").value]
-    .indicators[document.getElementById("indicator").value];
+function rankingRows(){return S.filtered.map(f=>({f,n:name(f),v:val(f,field()),a:area(f)})).filter(x=>x.v!==null).sort((a,b)=>$("order").value==="asc"?a.v-b.v:b.v-a.v)}
+function destroyChart(k){if(S.charts[k]){S.charts[k].destroy();S.charts[k]=null}}
+function updateRanking(){
+ let rows=rankingRows(),top=rows.slice(0,12);
+ $("rankCaption").textContent=`${ind().label} · ${S.mode==="mean"?"média":"exposição (%)"}`;
+ $("table").innerHTML=rows.length?rows.slice(0,100).map((r,i)=>`<tr data-i="${i}"><td class="rank">${i+1}</td><td>${esc(r.n)}</td><td>${esc(ind().label)}</td><td>${fmt(r.v)}${S.mode==="exposure"?"%":""}</td><td>${fmt(r.a)}</td></tr>`).join(""):'<tr><td colspan="5">Não há valores numéricos válidos para este campo na seleção atual.</td></tr>';
+ $("table").querySelectorAll("tr[data-i]").forEach((tr,i)=>tr.onclick=()=>select(rows[i].f,true));
+ destroyChart("rank");
+ S.charts.rank=new Chart($("rankChart"),{type:"bar",data:{labels:top.map(x=>x.n),datasets:[{data:top.map(x=>x.v),backgroundColor:top.map((x,i)=>COLORS[Math.min(4,Math.floor(i/Math.max(1,top.length)*5))]),borderRadius:5}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)+(S.mode==="exposure"?"%":"")}}},scales:{x:{grid:{color:"#edf1f2"},ticks:{font:{size:9}}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
 }
-
-function getField() {
-  const config = getConfig();
-
-  return document.getElementById("metric").value === "media"
-    ? config.media
-    : config.exposicao;
+function updateComparison(){
+ destroyChart("compare");let other=ALL.find(x=>x.id===$("compare").value);
+ if(!other){$("compareText").textContent="Selecione outro indicador no painel lateral para habilitar a comparação.";S.charts.compare=new Chart($("compareChart"),{type:"scatter",data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}});return}
+ let k2=S.mode==="mean"?other.mean:(other.exp||other.mean),pts=S.filtered.map(f=>({x:val(f,field()),y:val(f,k2),nm:name(f)})).filter(p=>p.x!==null&&p.y!==null);
+ $("compareText").textContent=`${ind().label} × ${other.label}. Cada ponto representa uma unidade territorial.`;
+ S.charts.compare=new Chart($("compareChart"),{type:"scatter",data:{datasets:[{data:pts,backgroundColor:"#16877e",pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw.nm}: ${fmt(c.raw.x)} × ${fmt(c.raw.y)}`}}},scales:{x:{title:{display:true,text:ind().label,font:{size:9}},ticks:{font:{size:9}}},y:{title:{display:true,text:other.label,font:{size:9}},ticks:{font:{size:9}}}}}});
 }
-
-function getValue(feature) {
-  const field = getField();
-
-  if (!field) return null;
-
-  return number(feature.properties?.[field]);
+function select(f,zoom=false){S.selected=f;renderMap();renderProfile(f);if(zoom){let b=L.geoJSON(f).getBounds();if(b.isValid())map.fitBounds(b,{maxZoom:16,padding:[30,30]})}}
+function renderProfile(f){
+ if(!f){$("profile").innerHTML='<div class="empty"><span>⌖</span><b>Nenhuma unidade selecionada</b><br>O perfil territorial aparecerá aqui.</div>';destroyChart("profile");return}
+ let p=f.properties||{},v=val(f,field()),available=ALL.map(i=>({label:i.label,v:val(f,i.mean)})).filter(x=>x.v!==null).slice(0,8);
+ $("profile").innerHTML=`<div class="pname">${esc(name(f))}</div><div class="sub">Perfil da unidade territorial selecionada</div><div class="stat"><span>Indicador em foco</span><strong>${esc(ind().label)}</strong></div><div class="stat"><span>${S.mode==="mean"?"Média":"Exposição (%)"}</span><strong>${fmt(v)}${S.mode==="exposure"?"%":""}</strong></div><div class="stat"><span>Área (ha)</span><strong>${fmt(area(f))}</strong></div><div class="stat"><span>Atributos preenchidos</span><strong>${Object.values(p).filter(x=>x!==null&&x!=="").length}</strong></div>`;
+ destroyChart("profile");S.charts.profile=new Chart($("profileChart"),{type:"bar",data:{labels:available.map(x=>x.label),datasets:[{data:available.map(x=>x.v),backgroundColor:"#65b6a8",borderRadius:4}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:8}}},y:{ticks:{font:{size:8}}}}}});
 }
-
-function getValues(features) {
-  return features
-    .map(getValue)
-    .filter(v => v !== null);
+function refresh(){
+ if(!S.data)return;
+ renderMap();updateKpis();updateRanking();updateComparison();
+ if(S.selected&&!S.filtered.includes(S.selected)){S.selected=null;renderProfile(null)}else if(S.selected)renderProfile(S.selected);
 }
-
-
-// ===================================================
-// 4. SELEÇÃO DOS INDICADORES
-// ===================================================
-
-function updateIndicators() {
-
-  const dimension = document.getElementById("dimension").value;
-  const select = document.getElementById("indicator");
-
-  select.innerHTML = "";
-
-  Object.entries(dimensions[dimension].indicators)
-    .forEach(([key, item]) => {
-
-      const option = document.createElement("option");
-
-      option.value = key;
-      option.textContent = item.label;
-
-      select.appendChild(option);
-    });
-
-  updateMetricOptions();
+function filter(){let q=$("search").value.trim().toLowerCase();S.filtered=S.features.filter(f=>!q||name(f).toLowerCase().includes(q));refresh()}
+function exportCSV(){
+ if(!S.filtered.length){notice("Não há feições para exportar com os filtros atuais.");return}
+ let keys=[...new Set(["V0","V1","V2a","V2b","V3a","area_ha",...ALL.flatMap(i=>[i.mean,i.exp]),...ADDITIONAL_FIELDS].filter(Boolean))],ps=S.filtered.map(f=>f.properties||{}),existing=keys.filter(k=>ps.some(p=>Object.prototype.hasOwnProperty.call(p,k)));
+ let cell=v=>'"'+String(v??"").replace(/"/g,'""')+'"',csv=[existing.map(cell).join(";"),...ps.map(p=>existing.map(k=>cell(p[k])).join(";"))].join("\r\n");
+ let url=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="aracoiaba_indicadores_filtrados.csv";a.click();URL.revokeObjectURL(url);
 }
-
-function updateMetricOptions() {
-
-  const config = getConfig();
-  const metric = document.getElementById("metric");
-
-  const exposureOption = metric.querySelector(
-    'option[value="exposicao"]'
-  );
-
-  exposureOption.disabled = !config.exposicao;
-
-  if (!config.exposicao) {
-    metric.value = "media";
-  }
-
-  renderMap();
+async function load(){
+ try{
+  let r=await fetch(GEOJSON_URL);if(!r.ok)throw Error(`HTTP ${r.status} ao acessar ${GEOJSON_URL}`);
+  let data=await r.json();if(!data||!Array.isArray(data.features))throw Error("O arquivo não é um GeoJSON FeatureCollection válido.");
+  S.data=data;S.features=data.features;S.filtered=[...S.features];
+  $("dot").classList.add("ok");$("status").textContent=`${S.features.length} feição(ões) carregada(s)`;
+  let has=k=>S.features.some(f=>Object.prototype.hasOwnProperty.call(f.properties||{},k));
+  let missing=[...new Set(ALL.flatMap(i=>[i.mean,i.exp]).filter(k=>k&&!has(k)))];
+  refresh();fit();
+  if(missing.length)notice("A base foi carregada, mas estes campos não foram encontrados (ou têm grafia diferente): "+missing.join(", ")+". Os indicadores correspondentes não apresentarão valores.");
+  else clearNotice();
+ }catch(e){$("status").textContent="Falha ao carregar a base";notice("Não foi possível carregar o GeoJSON. "+e.message+". Confirme se index.html e aracoiabateste.geojson estão na mesma pasta publicada no GitHub Pages e se o nome do arquivo está exatamente igual.");console.error(e)}
 }
-
-
-// ===================================================
-// 5. ESCALA CARTOGRÁFICA
-// ===================================================
-
-function getColor(value, min, max) {
-
-  if (value === null) return "#b8c1ca";
-
-  if (max === min) return "#28658a";
-
-  let t = (value - min) / (max - min);
-
-  if (document.getElementById("order").value === "reverse") {
-    t = 1 - t;
-  }
-
-  const colors = [
-    [241, 245, 249],
-    [167, 200, 212],
-    [75, 148, 168],
-    [23, 71, 107]
-  ];
-
-  const index = Math.min(
-    2,
-    Math.floor(t * 3)
-  );
-
-  const local = Math.min(
-    1,
-    Math.max(0, t * 3 - index)
-  );
-
-  const a = colors[index];
-  const b = colors[index + 1];
-
-  const rgb = a.map((v, i) =>
-    Math.round(v + (b[i] - v) * local)
-  );
-
-  return `rgb(${rgb.join(",")})`;
-}
-
-
-// ===================================================
-// 6. FILTRAGEM DOS DADOS
-// ===================================================
-
-function getFilteredFeatures() {
-
-  const query = document.getElementById("search")
-    .value.trim().toLocaleLowerCase("pt-BR");
-
-  return allFeatures.filter(feature => {
-
-    const p = feature.properties || {};
-
-    const searchable = [
-      p.V0,
-      p.V1,
-      p.V2a,
-      p.V2b,
-      p.V3a
-    ].join(" ").toLocaleLowerCase("pt-BR");
-
-    return !query || searchable.includes(query);
-  });
-}
-
-
-// ===================================================
-// 7. RENDERIZAÇÃO DO MAPA
-// ===================================================
-
-function renderMap() {
-
-  if (!allFeatures.length) return;
-
-  if (visibleLayer) {
-    map.removeLayer(visibleLayer);
-  }
-
-  const features = getFilteredFeatures();
-  const values = getValues(features);
-
-  const min = values.length ? Math.min(...values) : 0;
-  const max = values.length ? Math.max(...values) : 0;
-
-  visibleLayer = L.geoJSON(features, {
-
-    style: function(feature) {
-
-      const value = getValue(feature);
-
-      return {
-        color: "#ffffff",
-        weight: 1.2,
-        fillColor: getColor(value, min, max),
-        fillOpacity: 0.82
-      };
-    },
-
-    onEachFeature: function(feature, layer) {
-
-      layer.on("click", function() {
-        selectedFeature = feature;
-        showDetails(feature);
-      });
-
-      layer.on("mouseover", function() {
-        layer.setStyle({
-          weight: 2.5,
-          color: "#17324d",
-          fillOpacity: 0.95
-        });
-      });
-
-      layer.on("mouseout", function() {
-        visibleLayer.resetStyle(layer);
-      });
-
-    }
-
-  }).addTo(map);
-
-  const config = getConfig();
-  const metric = document.getElementById("metric").value;
-
-  document.getElementById("map-title").textContent =
-    config.label + " — " +
-    (metric === "media" ? "Média" : "Exposição territorial");
-
-  document.getElementById("map-status").textContent =
-    features.length.toLocaleString("pt-BR") +
-    " NUIs exibidos";
-
-  updateKPIs(features, values);
-
-  updateLegend(min, max);
-
-  if (features.length) {
-    const bounds = visibleLayer.getBounds();
-
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [25, 25] });
-    }
-  }
-
-  if (selectedFeature && !features.includes(selectedFeature)) {
-    selectedFeature = null;
-    document.getElementById("details-grid").innerHTML =
-      '<p class="empty">Selecione um polígono no mapa.</p>';
-  }
-}
-
-
-// ===================================================
-// 8. INDICADORES ESTATÍSTICOS
-// ===================================================
-
-function updateKPIs(features, values) {
-
-  const area = features.reduce((total, feature) => {
-    return total + (number(feature.properties?.area_ha) || 0);
-  }, 0);
-
-  const mean = values.length
-    ? values.reduce((a, b) => a + b, 0) / values.length
-    : null;
-
-  document.getElementById("kpi-total").textContent =
-    features.length.toLocaleString("pt-BR");
-
-  document.getElementById("kpi-area").textContent =
-    format(area, 2);
-
-  document.getElementById("kpi-media").textContent =
-    format(mean, 2);
-
-  document.getElementById("kpi-validos").textContent =
-    values.length.toLocaleString("pt-BR");
-}
-
-
-// ===================================================
-// 9. LEGENDA
-// ===================================================
-
-let legendControl;
-
-function updateLegend(min, max) {
-
-  if (legendControl) map.removeControl(legendControl);
-
-  legendControl = L.control({ position: "bottomright" });
-
-  legendControl.onAdd = function() {
-
-    const div = L.DomUtil.create("div", "legend");
-
-    div.innerHTML = `
-      <div class="legend-title">Distribuição do indicador</div>
-      <div class="gradient"></div>
-      <div class="legend-labels">
-        <span>${format(min, 2)}</span>
-        <span>${format(max, 2)}</span>
-      </div>
-      <div style="margin-top:8px;color:#718096">
-        Cinza: sem informação
-      </div>
-    `;
-
-    return div;
-  };
-
-  legendControl.addTo(map);
-}
-
-
-// ===================================================
-// 10. CONSULTA DOS ATRIBUTOS
-// ===================================================
-
-function showDetails(feature) {
-
-  const p = feature.properties || {};
-
-  const config = getConfig();
-  const field = getField();
-  const value = field ? p[field] : null;
-
-  const fields = [
-    ["Código do NUI", p.V0],
-    ["Município", p.V1],
-    ["Identificação territorial", p.V2a],
-    ["Grupo", p.V2b],
-    ["Localidade", p.V3a],
-    ["Área (m²)", format(number(p.area_m2), 2)],
-    ["Área (ha)", format(number(p.area_ha), 2)],
-    ["Indicador selecionado", config.label],
-    ["Campo de origem", field],
-    ["Valor do indicador", format(number(value), 3)]
-  ];
-
-  const container = document.getElementById("details-grid");
-
-  container.innerHTML = fields.map(([label, value]) => `
-    <div class="detail-item">
-      <div class="detail-label">${escapeHTML(label)}</div>
-      <div class="detail-value">${escapeHTML(value)}</div>
-    </div>
-  `).join("");
-
-}
-
-
-// ===================================================
-// 11. EVENTOS DOS CONTROLES
-// ===================================================
-
-document.getElementById("dimension")
-  .addEventListener("change", updateIndicators);
-
-document.getElementById("indicator")
-  .addEventListener("change", updateMetricOptions);
-
-document.getElementById("metric")
-  .addEventListener("change", renderMap);
-
-document.getElementById("order")
-  .addEventListener("change", renderMap);
-
-document.getElementById("search")
-  .addEventListener("input", renderMap);
-
-document.getElementById("reset")
-  .addEventListener("click", function() {
-
-    document.getElementById("search").value = "";
-    document.getElementById("dimension").value = "infra";
-
-    updateIndicators();
-
-  });
-
-
-// ===================================================
-// 12. CARREGAMENTO DO GEOJSON
-// ===================================================
-
-fetch("./aracoiabateste.geojson")
-
-.then(response => {
-
-  if (!response.ok) {
-    throw new Error("Erro ao carregar o arquivo GeoJSON.");
-  }
-
-  return response.json();
-
-})
-
-.then(data => {
-
-  if (data.type !== "FeatureCollection") {
-    throw new Error("O arquivo não possui estrutura FeatureCollection.");
-  }
-
-  allFeatures = data.features || [];
-
-  if (!allFeatures.length) {
-    throw new Error("O GeoJSON não possui feições.");
-  }
-
-  updateIndicators();
-
-  document.getElementById("map-status").textContent =
-    allFeatures.length.toLocaleString("pt-BR") +
-    " registros carregados";
-
-})
-
-.catch(error => {
-
-  console.error(error);
-
-  document.getElementById("map-status").textContent =
-    "Erro no carregamento dos dados";
-
-  alert(
-    error.message +
-    " Verifique o nome e o posicionamento do arquivo GeoJSON."
-  );
-
-});
-
+$("dimension").onchange=()=>{fillIndicators();S.mode="mean";$("mean").classList.add("active");$("exposure").classList.remove("active");refresh()};
+$("indicator").onchange=()=>{modeAvailability();refresh()};
+$("mean").onclick=()=>setMode("mean");$("exposure").onclick=()=>{if(ind().exp)setMode("exposure")};
+$("search").oninput=filter;$("order").onchange=updateRanking;$("compare").onchange=updateComparison;$("exportBtn").onclick=exportCSV;
+$("reset").onclick=()=>{$("search").value="";$("dimension").value=DIMS[0].id;fillIndicators();$("order").value="desc";$("compare").value="";S.mode="mean";S.selected=null;$("mean").classList.add("active");$("exposure").classList.remove("active");renderProfile(null);filter();fit()};
+setupSelects();load();
 </script>
-
 </body>
 </html>
