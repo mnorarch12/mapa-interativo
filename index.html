@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#08171d">
-<title>Observatório de Vulnerabilidade Socioambiental</title>
+<title>Núcleos Urbanos Informais</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -431,12 +431,12 @@ async function loadMunicipalities(){
       pane:"municipalBorders",
 
       style:()=>({
-        color:"#9bb9b8",
-        weight:1.15,
-        opacity:.78,
-        fillColor:"#000000",
-        fillOpacity:0
-      }),
+  color:"#ffffff",
+  weight:1.2,
+  opacity:.85,
+  fillColor:"#000000",
+  fillOpacity:0
+}),
 
       onEachFeature:(feature,layer)=>{
 
@@ -454,20 +454,21 @@ async function loadMunicipalities(){
 
     }).addTo(map);
 
-    // Exibe os nomes somente quando o mapa estiver mais afastado
-    function updateMunicipalLabels(){
+    // Mantém os nomes municipais visíveis,
+// ocultando-os apenas quando o mapa estiver muito aproximado.
+function updateMunicipalLabels(){
 
-      const labelsPane=map.getPane("municipalLabels");
+  const labelsPane=map.getPane("municipalLabels");
 
-      if(labelsPane){
-        labelsPane.style.display=map.getZoom()<=9?"":"none";
-      }
+  if(labelsPane){
+    labelsPane.style.display=map.getZoom()>=14?"none":"";
+  }
 
-    }
+}
 
-    map.on("zoomend",updateMunicipalLabels);
+map.on("zoomend",updateMunicipalLabels);
 
-    updateMunicipalLabels();
+updateMunicipalLabels();
 
   }catch(error){
 
