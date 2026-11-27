@@ -126,7 +126,24 @@ details[open] summary::after{content:"–"}
 .leaflet-tooltip{background:#08171d;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:7px 11px;box-shadow:0 10px 30px rgba(0,0,0,.4);font-size:12px}
 .leaflet-tooltip:before{display:none}
 .leaflet-tooltip b{display:block;font-family:"Bricolage Grotesque",sans-serif}
+/* Rótulos dos municípios */
+.municipal-label{
+  background:rgba(8,23,29,.82);
+  border:1px solid rgba(86,211,194,.45);
+  border-radius:7px;
+  color:#dcebe8;
+  box-shadow:0 2px 12px rgba(0,0,0,.28);
+  font:700 11px/1.2 "Figtree",sans-serif;
+  letter-spacing:.035em;
+  padding:4px 7px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
 
+.municipal-label:before{
+  display:none;
+}
+  
 @media(max-width:1180px){.sheet{left:16px;right:372px}.tools{right:372px}}
 @media(max-width:900px){
   .top{flex-direction:column;top:10px;left:10px;right:10px}
@@ -238,7 +255,8 @@ details[open] summary::after{content:"–"}
 <script>
 "use strict";
 const GEOJSON_URL="./ConsolidadoV2.geojson";
-
+const MUNICIPIOS_URL="./PEMunicipios.geojson";
+  
 const D={
 V2b:{1:"Grupo 1 (>300 mil hab.)",2:"Grupo 2 (100–300 mil)",3:"Grupo 3 (20–100 mil)",4:"Grupo 4 (até 20 mil)"},
 V3b:{1:"Prefeitura",2:"Moradores",3:"Outra fonte"},
@@ -320,9 +338,16 @@ const DIMENSIONS=[
 const PAL=["#f6e7c1","#f1be78","#e5865a","#c4503f","#7e2b3c"], NODATA="#2d434a";
 const $=id=>document.getElementById(id);
 let allF=[],filtF=[],sel=null,dim=DIMENSIONS[0],ind=null,measure="mean",method="quantile",
-    breaks=[],activeClass=null,sortDir="desc",chart=null,layer=null,baseIdx=0;
+    breaks=[],activeClass=null,sortDir="desc",chart=null,layer=null,municipalityLayer=null,baseIdx=0;
 
 const map=L.map("map",{zoomControl:false}).setView([-7.50,-35.32],11);
+  // Painéis dos limites e dos nomes dos municípios
+map.createPane("municipalBorders");
+map.getPane("municipalBorders").style.zIndex=390;
+
+map.createPane("municipalLabels");
+map.getPane("municipalLabels").style.zIndex=640;
+map.getPane("municipalLabels").style.pointerEvents="none";
 const bases=[
  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:20}),
  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:20}),
@@ -357,6 +382,103 @@ function fmtInd(v,i){
   return fmt(v,3);
 }
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  /* ---------- limites e identificação dos municípios ---------- */
+
+function municipalityName(feature){
+  const p=props(feature);
+
+  const candidates=[
+    "NM_MUN",
+    "NM_MUNICIP",
+    "NM_MUNIC",
+    "name",
+    "municipio",
+    "MUNICIPIO",
+    "NOME",
+    "nome",
+    "municipality"
+  ];
+
+  for(const key of candidates){
+    const value=p[key];
+
+    if(value!==null && value!==undefined && String(value).trim()!==""){
+      return String(value).trim();
+    }
+  }
+
+  return "Município";
+}
+
+async function loadMunicipalities(){
+
+  try{
+
+    const response=await fetch(MUNICIPIOS_URL,{cache:"no-store"});
+
+    if(!response.ok){
+      throw new Error("Erro HTTP "+response.status);
+    }
+
+    const geo=await response.json();
+
+    if(geo.type!=="FeatureCollection" || !Array.isArray(geo.features)){
+      throw new Error("Estrutura GeoJSON municipal inválida.");
+    }
+
+    municipalityLayer=L.geoJSON(geo,{
+
+      pane:"municipalBorders",
+
+      style:()=>({
+        color:"#9bb9b8",
+        weight:1.15,
+        opacity:.78,
+        fillColor:"#000000",
+        fillOpacity:0
+      }),
+
+      onEachFeature:(feature,layer)=>{
+
+        const nome=municipalityName(feature);
+
+        layer.bindTooltip(esc(nome),{
+          permanent:true,
+          direction:"center",
+          className:"municipal-label",
+          pane:"municipalLabels",
+          opacity:.96
+        });
+
+      }
+
+    }).addTo(map);
+
+    // Exibe os nomes somente quando o mapa estiver mais afastado
+    function updateMunicipalLabels(){
+
+      const labelsPane=map.getPane("municipalLabels");
+
+      if(labelsPane){
+        labelsPane.style.display=map.getZoom()<=9?"":"none";
+      }
+
+    }
+
+    map.on("zoomend",updateMunicipalLabels);
+
+    updateMunicipalLabels();
+
+  }catch(error){
+
+    console.warn(
+      "Não foi possível carregar os limites municipais:",
+      error
+    );
+
+  }
+
+}
 const avg=a=>{const v=a.filter(x=>x!==null);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null};
 function humanize(t){return String(t).replace(/^(pct_exp_|soma_pct_exp_|media_|area_)/,"").replace(/_/g," ").replace(/\bapa\b/gi,"APA").replace(/\barie\b/gi,"ARIE").replace(/\buc\b/gi,"UC").replace(/\b\w/g,c=>c.toUpperCase())}
 
@@ -627,6 +749,8 @@ async function load(){
     allF=g.features.filter(f=>f&&f.geometry);
     if(!allF.length)throw new Error("A camada não contém feições com geometria.");
     filtF=[...allF];
+    await loadMunicipalities();
+
     ind=indicators(dim)[0];
     fillSel("fMun",allF.map(f=>String(props(f).V2a??"").trim()));
     fillSel("fPolo",allF.map(f=>String(props(f).V1??"").trim()));
